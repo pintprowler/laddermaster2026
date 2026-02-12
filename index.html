@@ -134,19 +134,77 @@
 
     .content{ padding: 14px 14px 16px; }
 
+    /* -----------------------------
+       HERO STAGE (logo + player)
+       scoreboard frame + crowd bg
+    ------------------------------*/
     .logo-wrap{
       display:grid;
       place-items:center;
-      padding: 18px 14px 10px;
+      padding: 16px 14px 10px;
+    }
+
+    /* Pixel scoreboard frame */
+    .scoreboard{
+      width: min(980px, 100%);
+      border: 6px solid var(--ink);
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03)),
+        radial-gradient(900px 400px at 50% 0%, rgba(239,227,0,.10), transparent 60%),
+        radial-gradient(900px 400px at 20% 10%, rgba(3,190,108,.10), transparent 60%),
+        radial-gradient(900px 400px at 80% 10%, rgba(187,23,38,.10), transparent 60%),
+        rgba(0,0,0,.20);
+      box-shadow: 0 18px 0 rgba(0,0,0,.30), var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* inner pixel bevel lines */
+    .scoreboard::before{
+      content:"";
+      position:absolute;
+      inset: 0;
+      pointer-events:none;
+      box-shadow:
+        inset 0 0 0 3px rgba(255,255,255,.10),
+        inset 0 0 0 6px rgba(0,0,0,.35);
+      opacity: .9;
+    }
+
+    /* tiny “pixel rivets” */
+    .scoreboard::after{
+      content:"";
+      position:absolute;
+      inset: 0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 14px 14px, rgba(255,255,255,.35) 0 2px, transparent 3px),
+        radial-gradient(circle at calc(100% - 14px) 14px, rgba(255,255,255,.35) 0 2px, transparent 3px),
+        radial-gradient(circle at 14px calc(100% - 14px), rgba(255,255,255,.35) 0 2px, transparent 3px),
+        radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), rgba(255,255,255,.35) 0 2px, transparent 3px);
+      opacity: .55;
+    }
+
+    .stage{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 10px;
+      align-items:end;
+      padding: 18px 16px 10px;
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 980px){
+      .stage{ grid-template-columns: 1fr; text-align:center; padding-bottom: 14px; }
     }
 
     .logo{
-      width: min(520px, 85%);
+      width: min(520px, 92%);
       max-width: 520px;
       border-radius: 18px;
       border: 6px solid var(--ink);
       background: rgba(255,255,255,.10);
-      box-shadow: 0 18px 0 rgba(0,0,0,.30), var(--shadow);
       overflow:hidden;
     }
     .logo img{
@@ -156,8 +214,67 @@
       image-rendering: pixelated;
     }
 
+    /* Player area */
+    .player-wrap{
+      position: relative;
+      display:flex;
+      justify-content:center;
+      align-items:end;
+      min-height: 320px;
+    }
+    @media (max-width: 980px){
+      .player-wrap{ min-height: 280px; }
+    }
+
+    /* Stadium crowd silhouette (CSS-only) */
+    .crowd{
+      position:absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(520px, 100%);
+      height: 170px;
+      opacity: .35;
+      filter: blur(.2px);
+      background:
+        /* crowd “noise” */
+        radial-gradient(circle at 10% 65%, rgba(255,255,255,.15) 0 2px, transparent 3px),
+        radial-gradient(circle at 18% 72%, rgba(255,255,255,.10) 0 2px, transparent 3px),
+        radial-gradient(circle at 26% 66%, rgba(255,255,255,.12) 0 2px, transparent 3px),
+        radial-gradient(circle at 34% 74%, rgba(255,255,255,.10) 0 2px, transparent 3px),
+        radial-gradient(circle at 42% 63%, rgba(255,255,255,.12) 0 2px, transparent 3px),
+        radial-gradient(circle at 50% 76%, rgba(255,255,255,.10) 0 2px, transparent 3px),
+        radial-gradient(circle at 58% 64%, rgba(255,255,255,.12) 0 2px, transparent 3px),
+        radial-gradient(circle at 66% 73%, rgba(255,255,255,.10) 0 2px, transparent 3px),
+        radial-gradient(circle at 74% 66%, rgba(255,255,255,.12) 0 2px, transparent 3px),
+        radial-gradient(circle at 82% 74%, rgba(255,255,255,.10) 0 2px, transparent 3px),
+        radial-gradient(circle at 90% 65%, rgba(255,255,255,.12) 0 2px, transparent 3px),
+        /* base stands */
+        linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.80) 100%);
+      border-radius: 999px 999px 12px 12px;
+      box-shadow: inset 0 10px 0 rgba(255,255,255,.05);
+      border: 3px solid rgba(0,0,0,.35);
+    }
+
+    /* Player sprite */
+    .player{
+      width: min(320px, 86%);
+      height: auto;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 18px 22px rgba(0,0,0,.65));
+      animation: float 3.5s ease-in-out infinite;
+      position: relative;
+      z-index: 2;
+    }
+    @keyframes float{
+      0%{ transform: translateY(0px); }
+      50%{ transform: translateY(-10px); }
+      100%{ transform: translateY(0px); }
+    }
+
+    /* Stage caption */
     .subtitle{
-      margin-top: 14px;
+      margin: 10px 0 14px;
       text-align:center;
       font-size: 11px;
       opacity: .92;
@@ -165,6 +282,8 @@
     .subtitle span{
       color: var(--yellow);
     }
+
+    /* ----------------------------- */
 
     .desc{
       font-size: 14px;
@@ -285,7 +404,7 @@
     </div>
 
     <div class="hero">
-      <!-- LEFT: logo + intro -->
+      <!-- LEFT: logo + player hero -->
       <div class="panel">
         <div class="hd">
           <div class="pix h">Welcome</div>
@@ -293,18 +412,30 @@
         </div>
 
         <div class="logo-wrap">
-          <div class="logo">
-            <img src="./logo.png" alt="LadderMaster 26 Logo" />
-          </div>
-          <div class="subtitle pix">
-            A mates contest for AFL 2026 — <span>predict the ladder</span>, score points, win glory.
+          <div class="scoreboard">
+            <div class="stage">
+              <div style="display:flex; justify-content:center;">
+                <div class="logo">
+                  <img src="./logo.png" alt="LadderMaster 26 Logo" />
+                </div>
+              </div>
+
+              <div class="player-wrap">
+                <div class="crowd" aria-hidden="true"></div>
+                <img class="player" src="./misiti.png" alt="Pixel AFL Player" />
+              </div>
+            </div>
+
+            <div class="subtitle pix">
+              A mates contest for AFL 2026 — predict the ladder, score points, win glory. <span>WILL YOU BE THE LADDERMASTER?</span>
+            </div>
           </div>
         </div>
 
         <div class="content">
           <p class="desc">
             Submit your AFL ladder prediction (1–18). As the season goes on, we compare your picks to the real ladder
-            and score you each week. Highest total at the end of the season wins. <strong>Will you be the LADDERMASTER?</strong>
+            and score you each week. Highest total at the end of the season wins.
           </p>
 
           <div class="pix" style="font-size:12px; margin: 14px 0 8px;">SCORING</div>
@@ -331,7 +462,7 @@
           </div>
 
           <div class="fine">
-            Tip: Add your logo file as <code class="pix">logo.png</code> next to <code class="pix">index.html</code>.
+            Tip: Put <code class="pix">logo.png</code> and <code class="pix">misiti.png</code> next to <code class="pix">index.html</code> in GitHub.
             The leaderboard lives on <code class="pix">leaderboard.html</code>.
           </div>
         </div>
@@ -356,7 +487,7 @@
     </div>
 
     <div class="footer">
-      Made for mates • Built on GitHub Pages • SNES energy only
+      Pass along to any mates that might want to play
     </div>
   </div>
 </body>
