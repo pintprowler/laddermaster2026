@@ -1,196 +1,209 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.1">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 10.0px Arial; color: #1a1a1a; -webkit-text-stroke: #1a1a1a; background-color: #ffffff}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 10.0px Arial; color: #1a1a1a; -webkit-text-stroke: #1a1a1a; background-color: #ffffff; min-height: 11.0px}
-    span.s1 {font-kerning: none}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AFL 2026 Ladder Prediction</title>
+  <style>
+    :root { --border:#ddd; --bg:#f6f6f6; --active:#eef6ff; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    header { display:flex; justify-content:space-between; gap:12px; align-items:baseline; flex-wrap:wrap; }
+    h1 { margin:0; font-size: 24px; }
+    h2 { margin: 20px 0 10px; }
+    .muted { opacity: .7; }
+    button { padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: white; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .card { border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--bg); }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; }
+    th.right, td.right { text-align: right; }
+    tr.clickable { cursor:pointer; }
+    tr.active { background: var(--active); }
+    .tabs { display:flex; flex-wrap:wrap; gap:8px; margin: 10px 0 12px; }
+    .tab { padding: 8px 10px; border-radius: 999px; border:1px solid var(--border); background: white; cursor:pointer; }
+    .tab.active { background: #111; color: white; border-color: #111; }
+    .error { margin-top: 16px; padding: 12px; background: #ffe9e9; border: 1px solid #ffb3b3; border-radius: 10px; }
+    footer { margin-top: 26px; opacity: .65; }
   </style>
 </head>
 <body>
-<p class="p1"><span class="s1">import React, { useEffect, useMemo, useState } from "react";</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">const API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function formatIso(iso) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>try {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>return new Date(iso).toLocaleString();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>} catch {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>return iso;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">export default function App() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const [data, setData] = useState(null);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const [activePlayer, setActivePlayer] = useState(null);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const [error, setError] = useState(null);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const [loading, setLoading] = useState(true);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>async function load() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>setLoading(true);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>setError(null);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>try {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const res = await fetch(API_URL, { cache: "no-store" });</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const json = await res.json();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>if (json.error) throw new Error(json.error);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>setData(json);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>if (!activePlayer &amp;&amp; json.leaderboard?.length) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>setActivePlayer(json.leaderboard[0].name);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>} catch (e) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>setError(String(e));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>} finally {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>setLoading(false);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>useEffect(() =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>load();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// optional auto-refresh every 60s:</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const t = setInterval(load, 60000);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>return () =&gt; clearInterval(t);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// eslint-disable-next-line react-hooks/exhaustive-deps</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}, []);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const players = data?.leaderboard ?? [];</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const active = useMemo(() =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (!players.length) return null;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>return players.find(p =&gt; p.name === activePlayer) || players[0];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}, [players, activePlayer]);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return (</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div style={{ fontFamily: "system-ui, sans-serif", padding: 20, maxWidth: 1100, margin: "0 auto" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;header style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;h1 style={{ margin: 0 }}&gt;AFL 2026 Ladder Prediction&lt;/h1&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div style={{ opacity: 0.7, marginTop: 6 }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>Last updated: {data?.updatedAt ? formatIso(data.updatedAt) : "—"}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;button onClick={load} disabled={loading} style={{ padding: "10px 12px", cursor: "pointer" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>{loading ? "Refreshing…" : "Refresh"}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/header&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>{error &amp;&amp; (</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div style={{ marginTop: 16, padding: 12, background: "#ffe9e9", border: "1px solid #ffb3b3" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;b&gt;Error:&lt;/b&gt; {error}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div style={{ marginTop: 8, opacity: 0.8 }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>Tip: Make sure your Apps Script deployment access allows this browser to fetch the URL.</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>)}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;section style={{ marginTop: 20 }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;h2 style={{ marginBottom: 8 }}&gt;Leaderboard&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div style={{ border: "1px solid #ddd", borderRadius: 10, overflow: "hidden" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;table style={{ width: "100%", borderCollapse: "collapse" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;thead style={{ background: "#f6f6f6" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;th style={th}&gt;Rank&lt;/th&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;th style={th}&gt;Player&lt;/th&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;th style={thRight}&gt;Total Points&lt;/th&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;/tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/thead&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;tbody&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>{players.map((p, idx) =&gt; (</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;tr</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>key={p.name}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>onClick={() =&gt; setActivePlayer(p.name)}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>style={{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>cursor: "pointer",</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>background: p.name === active?.name ? "#eef6ff" : "white"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>}}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={td}&gt;{idx + 1}&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={td}&gt;&lt;b&gt;{p.name}&lt;/b&gt;&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={tdRight}&gt;{p.total}&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>))}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>{!players.length &amp;&amp; (</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={td} colSpan={3}&gt;No data yet.&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>)}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/tbody&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/table&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div style={{ marginTop: 8, opacity: 0.7 }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>Click a player to view breakdown.</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/section&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;section style={{ marginTop: 24 }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;h2 style={{ marginBottom: 8 }}&gt;Player Breakdown&lt;/h2&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>{/* Tabs */}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>{players.map(p =&gt; (</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;button</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>key={p.name}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>onClick={() =&gt; setActivePlayer(p.name)}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>style={{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>padding: "8px 10px",</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>borderRadius: 999,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>border: "1px solid #ddd",</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>cursor: "pointer",</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>background: p.name === active?.name ? "#111" : "white",</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>color: p.name === active?.name ? "white" : "#111"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>}}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>{p.name}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>))}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>{/* Breakdown table */}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div style={{ border: "1px solid #ddd", borderRadius: 10, overflow: "hidden" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;table style={{ width: "100%", borderCollapse: "collapse" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;thead style={{ background: "#f6f6f6" }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;th style={th}&gt;Team&lt;/th&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;th style={thRight}&gt;Predicted&lt;/th&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;th style={thRight}&gt;Actual&lt;/th&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;th style={thRight}&gt;Diff&lt;/th&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;th style={thRight}&gt;Points&lt;/th&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;/tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/thead&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;tbody&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>{active?.breakdown?.map(row =&gt; (</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;tr key={row.team}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={td}&gt;{row.team}&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={tdRight}&gt;{row.predictedRank ?? "—"}&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={tdRight}&gt;{row.actualRank ?? "—"}&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={tdRight}&gt;{row.diff ?? "—"}&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={tdRight}&gt;&lt;b&gt;{row.points}&lt;/b&gt;&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>))}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>{!active &amp;&amp; (</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;td style={td} colSpan={5}&gt;Select a player.&lt;/td&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/tr&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>)}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/tbody&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/table&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/section&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;footer style={{ marginTop: 26, opacity: 0.65 }}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>Backend: Google Apps Script · Data: Google Sheets</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/footer&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">const th = { textAlign: "left", padding: "10px 12px", borderBottom: "1px solid #ddd", fontWeight: 700 };</span></p>
-<p class="p1"><span class="s1">const thRight = { ...th, textAlign: "right" };</span></p>
-<p class="p1"><span class="s1">const td = { padding: "10px 12px", borderBottom: "1px solid #eee" };</span></p>
-<p class="p1"><span class="s1">const tdRight = { ...td, textAlign: "right" };</span></p>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>AFL 2026 Ladder Prediction</h1>
+        <div class="muted" id="updatedAt">Last updated: —</div>
+      </div>
+      <button id="refreshBtn">Refresh</button>
+    </header>
+
+    <div id="errorBox" class="error" style="display:none;"></div>
+
+    <section>
+      <h2>Leaderboard</h2>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th class="right">Total Points</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <tr><td colspan="3">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="muted" style="margin-top:8px;">Click a player to view breakdown.</div>
+    </section>
+
+    <section>
+      <h2>Player Breakdown</h2>
+      <div class="tabs" id="tabs"></div>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th class="right">Predicted</th>
+              <th class="right">Actual</th>
+              <th class="right">Diff</th>
+              <th class="right">Points</th>
+            </tr>
+          </thead>
+          <tbody id="breakdownBody">
+            <tr><td colspan="5">Select a player.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>Backend: Google Apps Script · Data: Google Sheets</footer>
+  </div>
+
+  <script>
+    // ✅ PASTE YOUR APPS SCRIPT WEB APP URL HERE:
+    const API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+    const elUpdatedAt = document.getElementById("updatedAt");
+    const elErrorBox = document.getElementById("errorBox");
+    const elRefreshBtn = document.getElementById("refreshBtn");
+    const elLeaderboardBody = document.getElementById("leaderboardBody");
+    const elTabs = document.getElementById("tabs");
+    const elBreakdownBody = document.getElementById("breakdownBody");
+
+    let state = {
+      data: null,
+      activePlayer: null
+    };
+
+    function fmtIso(iso) {
+      try { return new Date(iso).toLocaleString(); } catch { return iso; }
+    }
+
+    function showError(msg) {
+      elErrorBox.style.display = "block";
+      elErrorBox.innerHTML = "<b>Error:</b> " + msg +
+        "<div style='margin-top:8px;opacity:.8'>Tip: Make sure your Apps Script deployment allows public access and CORS isn’t blocked.</div>";
+    }
+
+    function clearError() {
+      elErrorBox.style.display = "none";
+      elErrorBox.textContent = "";
+    }
+
+    function render() {
+      const data = state.data;
+      const players = data?.leaderboard || [];
+
+      elUpdatedAt.textContent = "Last updated: " + (data?.updatedAt ? fmtIso(data.updatedAt) : "—");
+
+      // Leaderboard
+      if (!players.length) {
+        elLeaderboardBody.innerHTML = "<tr><td colspan='3'>No data yet.</td></tr>";
+      } else {
+        elLeaderboardBody.innerHTML = players.map((p, idx) => {
+          const active = p.name === state.activePlayer ? "active" : "";
+          return `
+            <tr class="clickable ${active}" data-player="${p.name}">
+              <td>${idx + 1}</td>
+              <td><b>${p.name}</b></td>
+              <td class="right">${p.total}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      // Tabs
+      elTabs.innerHTML = players.map(p => {
+        const active = p.name === state.activePlayer ? "active" : "";
+        return `<button class="tab ${active}" data-player="${p.name}">${p.name}</button>`;
+      }).join("");
+
+      // Breakdown
+      const activePlayerObj = players.find(p => p.name === state.activePlayer) || players[0] || null;
+      if (activePlayerObj && !state.activePlayer) state.activePlayer = activePlayerObj.name;
+
+      if (!activePlayerObj) {
+        elBreakdownBody.innerHTML = "<tr><td colspan='5'>Select a player.</td></tr>";
+      } else {
+        elBreakdownBody.innerHTML = activePlayerObj.breakdown.map(r => `
+          <tr>
+            <td>${r.team}</td>
+            <td class="right">${r.predictedRank ?? "—"}</td>
+            <td class="right">${r.actualRank ?? "—"}</td>
+            <td class="right">${r.diff ?? "—"}</td>
+            <td class="right"><b>${r.points}</b></td>
+          </tr>
+        `).join("");
+      }
+    }
+
+    async function load() {
+      clearError();
+      elRefreshBtn.disabled = true;
+      elRefreshBtn.textContent = "Refreshing…";
+
+      try {
+        if (!API_URL || API_URL.includes("PASTE_")) {
+          throw new Error("You haven’t set API_URL in the HTML yet.");
+        }
+        const res = await fetch(API_URL, { cache: "no-store" });
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+
+        state.data = json;
+        if (!state.activePlayer && json.leaderboard?.length) {
+          state.activePlayer = json.leaderboard[0].name;
+        }
+        render();
+      } catch (e) {
+        showError(String(e));
+        elLeaderboardBody.innerHTML = "<tr><td colspan='3'>Failed to load.</td></tr>";
+      } finally {
+        elRefreshBtn.disabled = false;
+        elRefreshBtn.textContent = "Refresh";
+      }
+    }
+
+    // Click handlers (event delegation)
+    document.addEventListener("click", (e) => {
+      const row = e.target.closest("[data-player]");
+      if (row) {
+        state.activePlayer = row.getAttribute("data-player");
+        render();
+      }
+    });
+
+    elRefreshBtn.addEventListener("click", load);
+
+    // Load now + auto refresh every 60s
+    load();
+    setInterval(load, 60000);
+  </script>
 </body>
 </html>
+
