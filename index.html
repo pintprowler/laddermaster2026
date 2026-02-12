@@ -268,18 +268,21 @@
       line-height: 1.45;
     }
 
-    /* Form embed */
+    /* Form embed (Jotform) */
     .form-wrap{
-      padding: 0;
+      padding: 14px;
     }
     .form-embed{
       width: 100%;
-      height: 820px;
+      height: 900px;
       border: 0;
       display:block;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 12px 0 rgba(0,0,0,.22);
     }
     @media (max-width: 520px){
-      .form-embed{ height: 980px; }
+      .form-embed{ height: 1020px; }
     }
 
     .footer{
@@ -304,18 +307,6 @@
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="pix badge">
-        <span class="dot"></span>
-        AFL 2026 • LADDER GAME
-      </div>
-
-      <div class="pix badge" title="Totally optional, but it feels right.">
-        PRESS START<span class="blink">▮</span>
-      </div>
-    </div>
-
     <div class="hero">
       <!-- LEFT: HERO IMAGE + STORY -->
       <div class="panel">
@@ -397,9 +388,12 @@
         <div class="form-wrap">
           <iframe
             class="form-embed"
-            src="https://docs.google.com/forms/d/e/1FAIpQLSftTLiCqmf0eL5Y8ADabNRz0iH82XEgIfPrKJSLg3Xy2LI-yg/viewform?usp=sharing&ouid=104535483685569738874"
-            loading="lazy"
-            title="Expression of Interest Form"
+            src="https://form.jotform.com/260425707635054"
+            frameborder="0"
+            scrolling="no"
+            allowtransparency="true"
+            allow="geolocation; microphone; camera; fullscreen"
+            title="LadderMaster 26 Entry Form"
           ></iframe>
         </div>
       </div>
