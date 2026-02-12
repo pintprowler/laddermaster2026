@@ -3,226 +3,258 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AFL 2026 Ladder Prediction • Prototype</title>
+  <title>LadderMaster 26 • Prototype</title>
+
+  <!-- Pixel font (optional but highly recommended) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --c1:#202a37;
-      --c2:#202836;
-      --c3:#10162b;
+      /* SNES-ish palette inspired by your logo */
+      --sky1:#2f7cff;
+      --sky2:#2b4fd6;
+      --night:#10162b;
+
+      --panel:#0d1326cc;
+      --panel2:#0b1022cc;
+
+      --white:#ffffff;
+      --ink:#05060a;
+      --muted: rgba(255,255,255,.75);
+
       --green:#03be6c;
       --yellow:#efe300;
       --red:#bb1726;
 
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.65);
-      --border: rgba(255,255,255,.10);
-      --shadow: 0 16px 50px rgba(0,0,0,.45);
-      --radius: 18px;
+      --border:#0a0c12;
+      --border2: rgba(255,255,255,.14);
+
+      --shadow: 0 18px 55px rgba(0,0,0,.55);
+      --radius: 14px;
     }
+
+    *{ box-sizing: border-box; }
 
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color: var(--text);
+      color: var(--white);
       background:
-        radial-gradient(1200px 700px at 15% 10%, rgba(3,190,108,.20), transparent 60%),
-        radial-gradient(900px 600px at 85% 18%, rgba(239,227,0,.12), transparent 60%),
-        radial-gradient(800px 600px at 60% 95%, rgba(187,23,38,.14), transparent 60%),
-        linear-gradient(180deg, var(--c3), #0b1022 65%, #070b16);
-      min-height:100vh;
+        radial-gradient(900px 520px at 18% 8%, rgba(255,255,255,.20), transparent 58%),
+        radial-gradient(900px 520px at 82% 12%, rgba(255,255,255,.16), transparent 60%),
+        linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 45%, var(--night) 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    .wrap{ max-width: 1150px; margin: 0 auto; padding: 22px; }
+    /* Subtle CRT scanlines */
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .12;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,.22) 0px,
+        rgba(0,0,0,.22) 1px,
+        rgba(255,255,255,.02) 2px,
+        rgba(255,255,255,.02) 3px
+      );
+      mix-blend-mode: overlay;
+    }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Retro title/font areas */
+    .pix, .pix *{
+      font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      letter-spacing: .6px;
+    }
+
     .topbar{
-      display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
-      margin-bottom: 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
     }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .logo{
-      width:44px; height:44px; border-radius: 12px;
-      background: linear-gradient(135deg, rgba(3,190,108,.25), rgba(239,227,0,.18));
-      border: 1px solid var(--border);
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      overflow:hidden;
-      display:grid; place-items:center;
-    }
-    .logo img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .logo-fallback{ font-weight:900; letter-spacing:.5px; color: var(--yellow); font-size: 16px; }
 
-    h1{ margin:0; font-size: 20px; letter-spacing: .2px; }
-    .sub{ margin-top:4px; color: var(--muted); font-size: 13px; }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 260px;
+    }
+
+    .logo{
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      border: 4px solid var(--ink);
+      background: rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display:grid;
+      place-items:center;
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      image-rendering: pixelated; /* key for your SNES vibe */
+      display:block;
+    }
+    .logo-fallback{
+      color: var(--yellow);
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .title{
+      line-height: 1.25;
+    }
+    .title h1{
+      margin: 0;
+      font-size: 14px;
+    }
+    .title .sub{
+      margin-top: 6px;
+      font-size: 11px;
+      opacity: .85;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      letter-spacing: 0;
+    }
 
     .btn{
-      padding: 10px 12px;
+      border: 4px solid var(--ink);
       border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(32,42,55,.55);
-      color: var(--text);
-      cursor:pointer;
-      box-shadow: 0 10px 28px rgba(0,0,0,.25);
-      transition: transform .08s ease, border-color .2s ease, background .2s ease;
+      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+      color: var(--white);
+      padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: 0 10px 0 rgba(0,0,0,.35), var(--shadow);
+      transform: translateY(0);
+      transition: transform .06s ease;
+      font-weight: 800;
     }
-    .btn:hover{ transform: translateY(-1px); border-color: rgba(3,190,108,.35); background: rgba(32,42,55,.70); }
-    .btn:active{ transform: translateY(0px); }
+    .btn:active{
+      transform: translateY(3px);
+      box-shadow: 0 7px 0 rgba(0,0,0,.35), var(--shadow);
+    }
 
     .grid{
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 16px;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
     }
-    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
 
-    .card{
-      background: linear-gradient(180deg, rgba(32,40,54,.70), rgba(32,42,55,.55));
-      border: 1px solid var(--border);
+    /* Pixel-ish panels */
+    .panel{
+      border: 4px solid var(--ink);
       border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
       box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .card .hd{
-      padding: 14px 16px;
-      display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(16,22,43,.35);
-    }
-    .title{ font-weight: 800; letter-spacing:.2px; }
-    .hint{ color: var(--muted); font-size: 12px; }
-
-    table{ width:100%; border-collapse: collapse; }
-    th, td{ padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.07); vertical-align: top; }
-    th{ text-align:left; color: rgba(255,255,255,.78); font-size: 12px; text-transform: uppercase; letter-spacing: .10em; }
-    td.right, th.right{ text-align:right; }
-
-    tr.click{ cursor:pointer; }
-    tr.click:hover{ background: rgba(3,190,108,.08); }
-    tr.active{ background: rgba(3,190,108,.13); }
-
-    /* Podium glow */
-    tr.podium-1{ box-shadow: inset 0 0 0 9999px rgba(239,227,0,.05); }
-    tr.podium-2{ box-shadow: inset 0 0 0 9999px rgba(255,255,255,.04); }
-    tr.podium-3{ box-shadow: inset 0 0 0 9999px rgba(187,23,38,.05); }
-    tr.podium-1 td:first-child,
-    tr.podium-2 td:first-child,
-    tr.podium-3 td:first-child{
+      overflow: hidden;
       position: relative;
     }
-    .podium-glow{
-      display:inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      margin-left: 6px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(16,22,43,.35);
-      box-shadow: 0 0 20px rgba(239,227,0,.12);
-      font-size: 12px;
-      vertical-align: middle;
+
+    .panel .hd{
+      padding: 12px 12px 10px;
+      border-bottom: 4px solid var(--ink);
+      background: rgba(0,0,0,.25);
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: baseline;
     }
-    tr.podium-2 .podium-glow{ box-shadow: 0 0 20px rgba(255,255,255,.10); }
-    tr.podium-3 .podium-glow{ box-shadow: 0 0 20px rgba(187,23,38,.12); }
+
+    .panel .hd .h{
+      font-size: 12px;
+    }
+
+    .hint{
+      font-size: 11px;
+      opacity: .85;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    table{
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      vertical-align: top;
+    }
+    th{
+      font-size: 10px;
+      opacity: .8;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    td.right, th.right{ text-align:right; }
+
+    tr.click{
+      cursor: pointer;
+    }
+    tr.click:hover{
+      background: rgba(255,255,255,.06);
+    }
+    tr.active{
+      background: rgba(239,227,0,.12);
+      outline: 2px solid rgba(239,227,0,.30);
+      outline-offset: -2px;
+    }
 
     .tabs{
-      display:flex; flex-wrap:wrap; gap:8px;
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(16,22,43,.25);
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
     }
     .tab{
+      border: 3px solid var(--ink);
       border-radius: 999px;
-      padding: 8px 11px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(32,42,55,.50);
-      color: rgba(255,255,255,.85);
-      cursor:pointer;
-      font-weight: 650;
-      transition: border-color .2s ease, transform .08s ease, background .2s ease;
+      padding: 8px 10px;
+      background: rgba(255,255,255,.08);
+      color: var(--white);
+      cursor: pointer;
+      box-shadow: 0 6px 0 rgba(0,0,0,.30);
+      font-weight: 900;
+      font-size: 11px;
     }
-    .tab:hover{ transform: translateY(-1px); border-color: rgba(239,227,0,.35); }
     .tab.active{
-      background: rgba(239,227,0,.14);
-      border-color: rgba(239,227,0,.35);
-      color: #fff;
+      background: rgba(3,190,108,.18);
+      box-shadow: 0 6px 0 rgba(0,0,0,.30), 0 0 0 2px rgba(3,190,108,.35) inset;
     }
+    .tab:active{ transform: translateY(2px); }
 
-    /* Mobile-friendly horizontal scroll for wide tables */
+    /* Mobile: horizontal scroll for wide breakdown */
     .table-scroll{
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
-    .table-scroll table{ min-width: 780px; }
+    .table-scroll table{
+      min-width: 760px;
+    }
 
-    /* Chips under player name */
-    .player-name{ font-weight: 850; line-height: 1.1; }
-    .chips{
-      margin-top: 6px;
-      display:flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .chip{
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.10);
-      color: rgba(255,255,255,.78);
-      background: rgba(16,22,43,.35);
-      display:inline-flex;
-      gap: 6px;
-      align-items:center;
-      max-width: 100%;
-    }
-    .chip strong{ color: rgba(255,255,255,.92); }
-    .chip .k{ color: rgba(239,227,0,.90); font-weight: 900; }
-
-    /* Trend arrow chip */
-    .trend.up{ border-color: rgba(3,190,108,.30); background: rgba(3,190,108,.10); }
-    .trend.down{ border-color: rgba(187,23,38,.30); background: rgba(187,23,38,.10); }
-    .trend.flat{ border-color: rgba(255,255,255,.12); background: rgba(255,255,255,.05); }
-    .trend .arrow{ font-size: 13px; }
-
-    /* Expandable predicted ladder row (animated) */
-    tr.expand-row td{
-      padding: 0;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      background: rgba(16,22,43,.22);
-    }
-    .expand-wrap{
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transform: translateY(-4px);
-      transition: max-height 320ms ease, opacity 240ms ease, transform 240ms ease;
-    }
-    .expand-wrap.open{
-      max-height: 900px; /* big enough for content */
-      opacity: 1;
-      transform: translateY(0px);
-    }
-    .expand-inner{ padding: 12px 14px 14px; }
-    .mini-grid{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    @media (max-width: 820px){ .mini-grid{ grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 520px){ .mini-grid{ grid-template-columns: 1fr; } }
-
-    .mini{
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 14px;
-      overflow:hidden;
-      background: rgba(32,42,55,.40);
-    }
-    .mini .mini-hd{
-      padding: 10px 12px;
-      font-weight: 850;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-    }
-    .mini table td{ padding: 10px 12px; }
-    .mini table tr:last-child td{ border-bottom: 0; }
-
-    /* Heat indicators */
+    /* Heat pills (simple + punchy) */
     .heat{
       display:inline-flex;
       justify-content:center;
@@ -230,20 +262,46 @@
       padding: 6px 10px;
       border-radius: 999px;
       font-weight: 900;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
+      border: 2px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
     }
-    .p10{ border-color: rgba(3,190,108,.35); background: rgba(3,190,108,.16); }
-    .p5, .p4{ border-color: rgba(3,190,108,.25); background: rgba(3,190,108,.10); }
-    .p3, .p2{ border-color: rgba(239,227,0,.28); background: rgba(239,227,0,.10); color: rgba(255,255,255,.92); }
-    .p1{ border-color: rgba(187,23,38,.25); background: rgba(187,23,38,.10); }
-    .p0{ opacity: .75; }
+    .p10{ border-color: rgba(3,190,108,.55); background: rgba(3,190,108,.22); }
+    .p5{ border-color: rgba(3,190,108,.35); background: rgba(3,190,108,.14); }
+    .p4{ border-color: rgba(3,190,108,.30); background: rgba(3,190,108,.12); }
+    .p3{ border-color: rgba(239,227,0,.40); background: rgba(239,227,0,.14); color: rgba(255,255,255,.95); }
+    .p2{ border-color: rgba(239,227,0,.30); background: rgba(239,227,0,.10); }
+    .p1{ border-color: rgba(187,23,38,.35); background: rgba(187,23,38,.14); }
+    .p0{ opacity: .70; }
 
-    .footer{ margin-top: 16px; color: var(--muted); font-size: 12px; }
-    code.k{ color: rgba(239,227,0,.85); }
+    .footer{
+      padding: 10px 12px 12px;
+      font-size: 12px;
+      opacity: .85;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+    .footer code{
+      color: var(--yellow);
+      font-weight: 900;
+    }
 
-    /* Small */
-    .small-muted{ color: var(--muted); font-size: 12px; }
+    /* Little “sparkles” for fun (lightweight) */
+    .spark{
+      position:absolute;
+      width: 6px;
+      height: 6px;
+      background: rgba(255,255,255,.85);
+      border-radius: 2px;
+      box-shadow: 0 0 14px rgba(255,255,255,.35);
+      opacity: .35;
+      animation: twinkle 2.8s infinite ease-in-out;
+    }
+    .s1{ top: 16px; right: 18px; animation-delay: .1s; }
+    .s2{ top: 52px; right: 54px; animation-delay: .9s; }
+    .s3{ top: 26px; right: 84px; animation-delay: 1.7s; }
+    @keyframes twinkle{
+      0%, 100%{ transform: scale(1); opacity: .25; }
+      50%{ transform: scale(1.35); opacity: .55; }
+    }
   </style>
 </head>
 
@@ -252,48 +310,46 @@
     <div class="topbar">
       <div class="brand">
         <div class="logo">
-          <img src="./logo.png" alt="Site Logo" onerror="this.remove(); document.getElementById('logoFallback').style.display='grid';" />
-          <div id="logoFallback" class="logo-fallback" style="display:none;">AFL</div>
+          <img src="./logo.png" alt="Logo" onerror="this.remove(); document.getElementById('logoFallback').style.display='block';" />
+          <div id="logoFallback" class="logo-fallback" style="display:none;">LM26</div>
         </div>
-        <div>
-          <h1>AFL 2026 Ladder Prediction <span style="opacity:.7;font-weight:700;">• Prototype</span></h1>
+        <div class="title">
+          <div class="pix"><h1>LadderMaster 26</h1></div>
           <div class="sub" id="updatedAt">Last updated: —</div>
         </div>
       </div>
 
-      <button class="btn" id="randomizeBtn">Regenerate Dummy Ladder</button>
+      <button class="btn pix" id="randomizeBtn">NEW SEASON!</button>
     </div>
 
     <div class="grid">
       <!-- Leaderboard -->
-      <div class="card">
+      <div class="panel">
+        <div class="spark s1"></div><div class="spark s2"></div><div class="spark s3"></div>
         <div class="hd">
-          <div class="title">Leaderboard</div>
-          <div class="hint">Click a player row to expand their predicted ladder</div>
+          <div class="pix h">Leaderboard</div>
+          <div class="hint">Click a player to view breakdown</div>
         </div>
-
         <table>
           <thead>
             <tr>
-              <th style="width:90px;">Rank</th>
+              <th style="width:80px;">Rank</th>
               <th>Player</th>
-              <th class="right" style="width:110px;">Total</th>
+              <th class="right" style="width:120px;">Points</th>
             </tr>
           </thead>
           <tbody id="leaderboardBody"></tbody>
         </table>
-
-        <div class="footer" style="padding: 12px 14px;">
-          Scoring: <code class="k">0→10</code>, <code class="k">1→5</code>, <code class="k">2→4</code>, <code class="k">3→3</code>, <code class="k">4→2</code>, <code class="k">5→1</code>, <code class="k">6+→0</code>
-          <span class="small-muted"> • Trends use dummy weekly history for now.</span>
+        <div class="footer">
+          Scoring: <code>0→10</code>, <code>1→5</code>, <code>2→4</code>, <code>3→3</code>, <code>4→2</code>, <code>5→1</code>, <code>6+→0</code>
         </div>
       </div>
 
       <!-- Current ladder -->
-      <div class="card">
+      <div class="panel">
         <div class="hd">
-          <div class="title">Current Ladder (Dummy)</div>
-          <div class="hint">This is what you’ll update weekly later</div>
+          <div class="pix h">Current Ladder</div>
+          <div class="hint">Dummy ladder for prototyping</div>
         </div>
         <table>
           <thead>
@@ -304,13 +360,16 @@
           </thead>
           <tbody id="ladderBody"></tbody>
         </table>
+        <div class="footer">
+          Later: this becomes your weekly update tab in Google Sheets.
+        </div>
       </div>
 
       <!-- Breakdown -->
-      <div class="card" style="grid-column: 1 / -1;">
+      <div class="panel" style="grid-column: 1 / -1;">
         <div class="hd">
-          <div class="title">Player Breakdown</div>
-          <div class="hint">On mobile, swipe sideways to see all columns</div>
+          <div class="pix h">Player Breakdown</div>
+          <div class="hint">On mobile: swipe sideways for all columns</div>
         </div>
 
         <div class="tabs" id="tabs"></div>
@@ -320,39 +379,34 @@
             <thead>
               <tr>
                 <th>Team</th>
-                <th class="right">Predicted</th>
+                <th class="right">Pred</th>
                 <th class="right">Actual</th>
                 <th class="right">Diff</th>
-                <th class="right">Points</th>
+                <th class="right">Pts</th>
               </tr>
             </thead>
             <tbody id="breakdownBody"></tbody>
           </table>
         </div>
 
-        <div class="footer" style="padding: 12px 14px;">
-          Next step: wire this to Google Sheets + Apps Script so it updates weekly automatically.
+        <div class="footer">
+          Tip: add <code>logo.png</code> next to <code>index.html</code> in GitHub.
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // -----------------------------
-    // Dummy data (AFL teams)
-    // -----------------------------
+    // --- Dummy data ---
     const TEAMS = [
       "Adelaide", "Brisbane", "Carlton", "Collingwood", "Essendon", "Fremantle",
       "Geelong", "Gold Coast", "GWS", "Hawthorn", "Melbourne", "North Melbourne",
       "Port Adelaide", "Richmond", "St Kilda", "Sydney", "West Coast", "Western Bulldogs"
     ];
 
-    // Players (dummy)
     const PLAYERS = ["Jason", "Sam", "Alex", "Taylor", "Maddy", "Chris"];
 
-    // -----------------------------
-    // Scoring (your exact breakdown)
-    // -----------------------------
+    // --- Scoring (your exact breakdown) ---
     function scoreForDiff(diff){
       if (diff === 0) return 10;
       if (diff === 1) return 5;
@@ -363,9 +417,7 @@
       return 0;
     }
 
-    // -----------------------------
-    // Helpers
-    // -----------------------------
+    // --- Helpers ---
     function shuffle(arr){
       const a = [...arr];
       for (let i = a.length - 1; i > 0; i--){
@@ -374,9 +426,22 @@
       }
       return a;
     }
-    function nowStamp(){ return new Date().toLocaleString(); }
 
-    // Generate dummy "actual ladder" (random order)
+    function nowStamp(){
+      return new Date().toLocaleString();
+    }
+
+    function heatClass(points){
+      if (points === 10) return "heat p10";
+      if (points === 5) return "heat p5";
+      if (points === 4) return "heat p4";
+      if (points === 3) return "heat p3";
+      if (points === 2) return "heat p2";
+      if (points === 1) return "heat p1";
+      return "heat p0";
+    }
+
+    // --- Generate dummy "actual ladder" ---
     function generateActualLadder(){
       const order = shuffle(TEAMS);
       const ladder = {};
@@ -384,8 +449,7 @@
       return ladder;
     }
 
-    // Generate dummy player predictions:
-    // start from actual ladder and apply random small swaps so it feels realistic.
+    // --- Generate dummy player predictions (realistic-ish) ---
     function generatePredictions(actualLadder){
       const actualOrder = TEAMS.slice().sort((a,b)=>actualLadder[a]-actualLadder[b]);
 
@@ -401,118 +465,35 @@
 
       const predictions = {};
       PLAYERS.forEach((p, idx) => {
-        const intensity = 10 + idx * 4; // tweak realism
+        const intensity = 10 + idx * 4;
         const order = perturb(actualOrder, intensity);
-
         const ranks = {};
         order.forEach((team, i) => ranks[team] = i + 1);
         predictions[p] = ranks;
       });
-
       return predictions;
     }
 
-    // Best team call: pick lowest diff (ties allowed, pick first alphabetically for display)
-    function bestTeamCallForPlayer(breakdown){
-      // breakdown items include team, diff, points
-      let bestDiff = Infinity;
-      breakdown.forEach(r => { if (r.diff < bestDiff) bestDiff = r.diff; });
-      const candidates = breakdown.filter(r => r.diff === bestDiff).sort((a,b)=>a.team.localeCompare(b.team));
-      const best = candidates[0];
-      return {
-        team: best?.team ?? "—",
-        diff: Number.isFinite(best?.diff) ? best.diff : null,
-        points: Number.isFinite(best?.points) ? best.points : null,
-        ties: candidates.length
-      };
-    }
-
-    // Compute leaderboard + breakdown + predicted ladder order
-    function computeScores(actualLadder, predictions){
+    function computeLeaderboard(actualLadder, predictions){
       const leaderboard = PLAYERS.map(name => {
         let total = 0;
-        let exactHits = 0;
-
+        let exact = 0;
         const breakdown = TEAMS.map(team => {
-          const predictedRank = predictions[name][team];
-          const actualRank = actualLadder[team];
-          const diff = Math.abs(predictedRank - actualRank);
-          const points = scoreForDiff(diff);
-          total += points;
-          if (diff === 0) exactHits++;
-          return { team, predictedRank, actualRank, diff, points };
-        }).sort((a,b)=>a.actualRank-b.actualRank);
-
-        const bestCall = bestTeamCallForPlayer(breakdown);
-
-        const predictedOrder = TEAMS
-          .slice()
-          .sort((a,b)=>predictions[name][a]-predictions[name][b])
-          .map(team => ({ team, pos: predictions[name][team] }));
-
-        return { name, total, exactHits, bestCall, breakdown, predictedOrder };
+          const pred = predictions[name][team];
+          const act = actualLadder[team];
+          const diff = Math.abs(pred - act);
+          const pts = scoreForDiff(diff);
+          total += pts;
+          if (diff === 0) exact++;
+          return { team, pred, act, diff, pts };
+        }).sort((a,b)=>a.act-b.act);
+        return { name, total, exact, breakdown };
       }).sort((a,b)=>b.total-a.total);
 
       return leaderboard;
     }
 
-    // -----------------------------
-    // Weekly history (dummy)
-    // We simulate totals over 4 weeks leading into "this week"
-    // so we can show trend arrows (Δ vs last week).
-    // -----------------------------
-    function makeWeeklyHistoryFromCurrent(currentActualLadder, predictions){
-      // Create 4 "past weeks" by slightly shuffling the current ladder order.
-      const weeks = [];
-      const baseOrder = TEAMS.slice().sort((a,b)=>currentActualLadder[a]-currentActualLadder[b]);
-
-      function smallShuffle(order, intensity){
-        const a = [...order];
-        for (let k=0;k<intensity;k++){
-          const i = Math.floor(Math.random() * a.length);
-          const j = Math.max(0, Math.min(a.length - 1, i + (Math.random()<0.5?-1:1)));
-          [a[i], a[j]] = [a[j], a[i]];
-        }
-        return a;
-      }
-
-      const weekOrders = [
-        smallShuffle(baseOrder, 18),
-        smallShuffle(baseOrder, 12),
-        smallShuffle(baseOrder, 8),
-        baseOrder
-      ];
-
-      weekOrders.forEach((order, wIdx) => {
-        const ladder = {};
-        order.forEach((t,i)=> ladder[t]=i+1);
-        const lb = computeScores(ladder, predictions);
-        // Map totals by name for quick trend lookup
-        const totalsByPlayer = {};
-        lb.forEach(p => totalsByPlayer[p.name]=p.total);
-        weeks.push({
-          weekLabel: `Week ${wIdx+1}`,
-          ladder,
-          totalsByPlayer
-        });
-      });
-
-      return weeks;
-    }
-
-    function trendForPlayer(weeks, playerName){
-      if (!weeks || weeks.length < 2) return { delta: 0, dir: "flat" };
-      const last = weeks[weeks.length - 1].totalsByPlayer[playerName] ?? 0;
-      const prev = weeks[weeks.length - 2].totalsByPlayer[playerName] ?? 0;
-      const delta = last - prev;
-      if (delta > 0) return { delta, dir: "up" };
-      if (delta < 0) return { delta, dir: "down" };
-      return { delta: 0, dir: "flat" };
-    }
-
-    // -----------------------------
-    // Render
-    // -----------------------------
+    // --- DOM ---
     const elUpdatedAt = document.getElementById("updatedAt");
     const elLeaderboardBody = document.getElementById("leaderboardBody");
     const elLadderBody = document.getElementById("ladderBody");
@@ -524,34 +505,8 @@
       actualLadder: null,
       predictions: null,
       leaderboard: null,
-      weeklyHistory: null,
-      activePlayer: null,
-      expandedPlayer: null
+      activePlayer: null
     };
-
-    function medalForRank(rank){
-      if (rank === 1) return "🥇";
-      if (rank === 2) return "🥈";
-      if (rank === 3) return "🥉";
-      return "";
-    }
-
-    function podiumClass(rank){
-      if (rank === 1) return "podium-1";
-      if (rank === 2) return "podium-2";
-      if (rank === 3) return "podium-3";
-      return "";
-    }
-
-    function heatClass(points){
-      if (points === 10) return "heat p10";
-      if (points === 5) return "heat p5";
-      if (points === 4) return "heat p4";
-      if (points === 3) return "heat p3";
-      if (points === 2) return "heat p2";
-      if (points === 1) return "heat p1";
-      return "heat p0";
-    }
 
     function renderLadder(){
       const order = TEAMS.slice().sort((a,b)=>state.actualLadder[a]-state.actualLadder[b]);
@@ -567,108 +522,32 @@
       const lb = state.leaderboard || [];
       if (!state.activePlayer && lb.length) state.activePlayer = lb[0].name;
 
-      const rows = [];
-      lb.forEach((p, idx) => {
-        const rank = idx + 1;
+      elLeaderboardBody.innerHTML = lb.map((p, idx) => {
         const isActive = p.name === state.activePlayer;
-        const isExpanded = p.name === state.expandedPlayer;
-
-        const medal = medalForRank(rank);
-        const podium = podiumClass(rank);
-
-        const best = p.bestCall;
-        const bestText = best?.team
-          ? `${best.team}${best.ties > 1 ? " (tie)" : ""}`
-          : "—";
-
-        const tr = trendForPlayer(state.weeklyHistory, p.name);
-        const arrow = tr.dir === "up" ? "▲" : tr.dir === "down" ? "▼" : "•";
-        const deltaTxt = tr.delta === 0 ? "0" : (tr.delta > 0 ? `+${tr.delta}` : `${tr.delta}`);
-
-        rows.push(`
-          <tr class="click ${isActive ? "active" : ""} ${podium}"
-              data-player="${p.name}"
-              data-action="row">
+        return `
+          <tr class="click ${isActive ? "active" : ""}" data-player="${p.name}">
+            <td>${idx + 1}</td>
             <td>
-              ${rank}
-              ${medal ? `<span class="podium-glow">${medal}</span>` : ""}
-            </td>
-            <td>
-              <div class="player-name">${p.name}</div>
-              <div class="chips">
-                <span class="chip">Exact <span class="k">${p.exactHits}</span></span>
-                <span class="chip">Best call <strong>${bestText}</strong></span>
-                <span class="chip trend ${tr.dir}">
-                  <span class="arrow">${arrow}</span>
-                  Trend <strong>${deltaTxt}</strong>
-                </span>
-              </div>
+              <div style="font-weight:900;">${p.name}</div>
+              <div style="opacity:.8;font-size:12px;">Exact hits: <b style="color: var(--yellow);">${p.exact}</b></div>
             </td>
             <td class="right" style="font-weight:900;font-size:16px;">${p.total}</td>
           </tr>
-        `);
-
-        // Always render the expand row, but animate open/closed
-        // (so the animation works reliably)
-        const predicted = p.predictedOrder;
-        const chunkSize = 6;
-        const chunks = [];
-        for (let i = 0; i < predicted.length; i += chunkSize){
-          chunks.push(predicted.slice(i, i + chunkSize));
-        }
-
-        rows.push(`
-          <tr class="expand-row">
-            <td colspan="3">
-              <div class="expand-wrap ${isExpanded ? "open" : ""}" data-expand-for="${p.name}">
-                <div class="expand-inner">
-                  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-                    <div style="font-weight:900;">${p.name}'s Predicted Ladder</div>
-                    <div class="small-muted">Click the player row again to collapse</div>
-                  </div>
-
-                  <div class="mini-grid">
-                    ${chunks.map((chunk, cIdx) => `
-                      <div class="mini">
-                        <div class="mini-hd">
-                          <span>Positions ${cIdx*chunkSize+1}–${cIdx*chunkSize + chunk.length}</span>
-                          <span class="chip">Predicted</span>
-                        </div>
-                        <table>
-                          <tbody>
-                            ${chunk.map(r => `
-                              <tr>
-                                <td style="width:70px; color: rgba(255,255,255,.75);">${r.pos}</td>
-                                <td><b>${r.team}</b></td>
-                              </tr>
-                            `).join("")}
-                          </tbody>
-                        </table>
-                      </div>
-                    `).join("")}
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        `);
-      });
-
-      elLeaderboardBody.innerHTML = rows.join("");
+        `;
+      }).join("");
     }
 
     function renderTabs(){
       const lb = state.leaderboard || [];
       elTabs.innerHTML = lb.map(p => {
-        const cls = p.name === state.activePlayer ? "active" : "";
-        return `<button class="tab ${cls}" data-player="${p.name}" data-action="tab">${p.name}</button>`;
+        const active = p.name === state.activePlayer ? "active" : "";
+        return `<button class="tab ${active} pix" data-tab="${p.name}">${p.name}</button>`;
       }).join("");
     }
 
     function renderBreakdown(){
       const lb = state.leaderboard || [];
       const player = lb.find(p => p.name === state.activePlayer) || lb[0];
-
       if (!player){
         elBreakdownBody.innerHTML = `<tr><td colspan="5">No players.</td></tr>`;
         return;
@@ -676,11 +555,11 @@
 
       elBreakdownBody.innerHTML = player.breakdown.map(r => `
         <tr>
-          <td>${r.team}</td>
-          <td class="right">${r.predictedRank}</td>
-          <td class="right">${r.actualRank}</td>
+          <td><b>${r.team}</b></td>
+          <td class="right">${r.pred}</td>
+          <td class="right">${r.act}</td>
           <td class="right">${r.diff}</td>
-          <td class="right"><span class="${heatClass(r.points)}">${r.points}</span></td>
+          <td class="right"><span class="${heatClass(r.pts)}">${r.pts}</span></td>
         </tr>
       `).join("");
     }
@@ -696,37 +575,24 @@
     function regenerate(){
       state.actualLadder = generateActualLadder();
       state.predictions = generatePredictions(state.actualLadder);
-      state.leaderboard = computeScores(state.actualLadder, state.predictions);
-
-      // Build weekly history for trend arrows
-      state.weeklyHistory = makeWeeklyHistoryFromCurrent(state.actualLadder, state.predictions);
-
+      state.leaderboard = computeLeaderboard(state.actualLadder, state.predictions);
       state.activePlayer = state.leaderboard[0]?.name ?? null;
-      state.expandedPlayer = null;
       renderAll();
     }
 
-    // Click handling
+    // Click leaderboard row
     document.addEventListener("click", (e) => {
-      const node = e.target.closest("[data-action][data-player]");
-      if (!node) return;
-
-      const name = node.getAttribute("data-player");
-      const action = node.getAttribute("data-action");
-
-      if (action === "tab"){
-        // Tabs only change the breakdown, no expand/collapse
-        state.activePlayer = name;
+      const row = e.target.closest("[data-player]");
+      if (row){
+        state.activePlayer = row.getAttribute("data-player");
         renderLeaderboard();
         renderTabs();
         renderBreakdown();
         return;
       }
-
-      if (action === "row"){
-        // Row click selects + toggles expansion
-        state.activePlayer = name;
-        state.expandedPlayer = (state.expandedPlayer === name) ? null : name;
+      const tab = e.target.closest("[data-tab]");
+      if (tab){
+        state.activePlayer = tab.getAttribute("data-tab");
         renderLeaderboard();
         renderTabs();
         renderBreakdown();
@@ -736,7 +602,6 @@
 
     elRandomizeBtn.addEventListener("click", regenerate);
 
-    // Boot
     regenerate();
   </script>
 </body>
